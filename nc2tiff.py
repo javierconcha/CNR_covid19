@@ -2,7 +2,9 @@
 # coding: utf-8
 """
 Created on Wed May 27 19:00:12 2020
-
+Description: Script to convert NetCDF4 to GeoTiff
+Use: 
+    python nc2tiff.py [nc input file]
 @author: javier.concha
 """
 """
