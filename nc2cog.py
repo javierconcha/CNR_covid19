@@ -47,7 +47,6 @@ from osgeo import osr
 
 def export_geotiff(netcdf_file):
     geotiff_file = netcdf_file.split('.')[0]+'.tif'
-    geotiff_file2 = netcdf_file.split('.')[0]+'_2.tif'
     
     #Open existing dataset
     src_ds = gdal.Open(netcdf_file)
@@ -57,25 +56,22 @@ def export_geotiff(netcdf_file):
     driver = gdal.GetDriverByName(format)
     
     #Output to new format
-    dst_ds = driver.CreateCopy( geotiff_file, src_ds, 1 )
+    dst_ds = driver.CreateCopy('intermediate.tif', src_ds, 1 )
     srs = osr.SpatialReference()            # establish encoding
     srs.ImportFromEPSG(4326)                # WGS84 lat/lon
     dst_ds.SetProjection(srs.ExportToWkt()) # export coords to file
 
-
+    dst_ds = None
+    src_ds = None
     
     
-    ds = gdal.Open(geotiff_file)
-    ds = gdal.Translate(geotiff_file2,ds,xRes=0.002712249755859,yRes=0.002712249755859)
+    ds = gdal.Open('intermediate.tif')
+    ds = gdal.Translate(geotiff_file,ds,xRes=0.002712249755859,yRes=0.002712249755859,noData=-999)
     # # dst_ds.GetRasterBand(1).SetDescription('anomaly') 
     # dst_ds.SetMetadataItem('AREA_OR_POINT','Area','')
     # dst_ds.SetMetadataItem('TIFFTAG_RESOLUTIONUNIT', '1 (unitless)','')
     # dst_ds.SetMetadataItem('TIFFTAG_XRESOLUTION', '1','')
     # dst_ds.SetMetadataItem('TIFFTAG_YRESOLUTION', '1','')
-    
-    # RasterBand.FlushCache()
-    # dst_ds.FlushCache() ##saves to disk!!
-    #Properly close the datasets to flush to disk
   
     ds = None
     
