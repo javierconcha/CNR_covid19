@@ -66,14 +66,28 @@ def export_geotiff(netcdf_file):
     
     
     ds = gdal.Open('intermediate.tif')
-    ds = gdal.Translate(geotiff_file,ds,xRes=0.002712249755859,yRes=0.002712249755859,noData=-999)
+    ds = gdal.Translate('intermediate2.tif',ds,xRes=0.002712249755859,yRes=0.002712249755859,noData=-999)
     # # dst_ds.GetRasterBand(1).SetDescription('anomaly') 
     # dst_ds.SetMetadataItem('AREA_OR_POINT','Area','')
     # dst_ds.SetMetadataItem('TIFFTAG_RESOLUTIONUNIT', '1 (unitless)','')
     # dst_ds.SetMetadataItem('TIFFTAG_XRESOLUTION', '1','')
     # dst_ds.SetMetadataItem('TIFFTAG_YRESOLUTION', '1','')
-  
+    
+    # - Add the overviews zoom levels 
+    # (gdaladdo -r average --config GDAL_TIFF_OVR_BLOCKSIZE 1024 intermediate.tiff 2 4 8 16 32)
+    gdal.SetConfigOption('GDAL_TIFF_OVR_BLOCKSIZE', '1024')
+    ds.BuildOverviews("AVERAGE", [2,4,8,16,32])
+
     ds = None
+    # - Compression of tif 
+    # (gdal_translate -co TILED=YES -co COPY_SRC_OVERVIEWS=YES --config GDAL_TIFF_OVR_BLOCKSIZE 1024 -co BLOCKXSIZE=1024 -co BLOCKYSIZE=1024 -co COMPRESS=DEFLATE intermediate.tiff outputfile.tiff)
+  
+    ds2 = gdal.Open('intermediate2.tif')
+    gdal.SetConfigOption('GDAL_TIFF_OVR_BLOCKSIZE', '1024')
+    creation_options = ['TILED=YES','COPY_SRC_OVERVIEWS=YES', 'BLOCKXSIZE=1024', 'BLOCKYSIZE=1024','COMPRESS=DEFLATE']
+    ds2 = gdal.Translate(geotiff_file,ds2,creationOptions= creation_options)
+
+    ds2 =None
     
 #%%
 if __name__ == "__main__":
