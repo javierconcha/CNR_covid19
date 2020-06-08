@@ -40,13 +40,14 @@ variables:
 }'''
     
 import sys    
+import os
     
 #Import gdal
 from osgeo import gdal
 from osgeo import osr
 
 def export_geotiff(netcdf_file):
-    geotiff_file = netcdf_file.split('.')[0]+'.tif'
+    geotiff_file = netcdf_file.split('.')[0]+'_cog.tif'
     
     #Open existing dataset
     src_ds = gdal.Open(netcdf_file)
@@ -66,12 +67,20 @@ def export_geotiff(netcdf_file):
     
     
     ds = gdal.Open('intermediate.tif')
-    ds = gdal.Translate('intermediate2.tif',ds,xRes=0.002712249755859,yRes=0.002712249755859,noData=-999)
+    gt = ds.GetGeoTransform()
+    pixelSizeX = gt[1]
+    pixelSizeY =-gt[5]
+    print(f'orignal: xRes:{pixelSizeX},yRes:{pixelSizeY}')
+    ds = gdal.Translate('intermediate2.tif',ds,xRes=pixelSizeX,yRes=pixelSizeX,noData=-999)
+    gt = ds.GetGeoTransform()
+    pixelSizeX = gt[1]
+    pixelSizeY =-gt[5]
+    print(f'new: xRes:{pixelSizeX},yRes:{pixelSizeY}')
     # # dst_ds.GetRasterBand(1).SetDescription('anomaly') 
-    # dst_ds.SetMetadataItem('AREA_OR_POINT','Area','')
-    # dst_ds.SetMetadataItem('TIFFTAG_RESOLUTIONUNIT', '1 (unitless)','')
-    # dst_ds.SetMetadataItem('TIFFTAG_XRESOLUTION', '1','')
-    # dst_ds.SetMetadataItem('TIFFTAG_YRESOLUTION', '1','')
+    ds.SetMetadataItem('AREA_OR_POINT','Area','')
+    ds.SetMetadataItem('TIFFTAG_RESOLUTIONUNIT', '1 (unitless)','')
+    ds.SetMetadataItem('TIFFTAG_XRESOLUTION', '1','')
+    ds.SetMetadataItem('TIFFTAG_YRESOLUTION', '1','')
     
     # - Add the overviews zoom levels 
     # (gdaladdo -r average --config GDAL_TIFF_OVR_BLOCKSIZE 1024 intermediate.tiff 2 4 8 16 32)
@@ -88,6 +97,8 @@ def export_geotiff(netcdf_file):
     ds2 = gdal.Translate(geotiff_file,ds2,creationOptions= creation_options)
 
     ds2 =None
+    os.remove("intermediate.tif")
+    os.remove("intermediate2.tif")
     
 #%%
 if __name__ == "__main__":
