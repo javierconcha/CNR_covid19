@@ -110,7 +110,7 @@ if __name__ == "__main__":
     
     
     if len(sys.argv) != 2:
-        print('Use: python nc2tiff.py [nc input file]')
+        print('Use: python nc2cog.py [nc input file]')
         exit()
         
     netcdf_file = sys.argv[1]
