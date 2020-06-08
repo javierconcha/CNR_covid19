@@ -2,10 +2,10 @@
 # coding: utf-8
 """
 Created on Wed May 27 19:00:12 2020
-Description: Script to convert NetCDF4 to GeoTiff
+Description: Script to convert NetCDF4 to COG GeoTiff
 Use: 
-    python nc2tiff.py [nc input file]
-@author: javier.concha
+    python nc2cog.py [nc input file]
+@author: javier.concha, Javier.Concha@artov.ismar.cnr.it
 """
 """
 This program is free software: you can redistribute it and/or modify
@@ -65,7 +65,10 @@ def export_geotiff(netcdf_file):
     dst_ds = None
     src_ds = None
     
-    
+    # - Resize the pixel resolution yRes=xRes
+    # gdal_translate -tr x y inputfile outputfile
+    # - Adding no data value needed for COG
+    # gdal_translate -of GTIFF inputfile.tif intermediate.tif -a_nodata -999
     ds = gdal.Open('intermediate.tif')
     gt = ds.GetGeoTransform()
     pixelSizeX = gt[1]
