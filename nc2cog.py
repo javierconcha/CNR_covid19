@@ -74,8 +74,8 @@ def export_geotiff(netcdf_file):
     pixelSizeX = gt[1]
     pixelSizeY =-gt[5]
     print(f'original: xRes:{pixelSizeX},yRes:{pixelSizeY}')
-    pixelSizefixed = 0.003848075866699
-    ds = gdal.Translate('intermediate2.tif',ds,xRes=pixelSizefixed,yRes=pixelSizefixed,noData=-999)
+    # pixelSizefixed = 0.003848075866699
+    ds = gdal.Translate('intermediate2.tif',ds,xRes=pixelSizeX,yRes=pixelSizeX,noData=-999)
     gt = ds.GetGeoTransform()
     pixelSizeX = gt[1]
     pixelSizeY =-gt[5]
